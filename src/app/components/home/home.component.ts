@@ -1,12 +1,8 @@
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -24,16 +20,10 @@ import { VowelSearchComponent } from '../vowel-search/vowel-search.component';
   standalone: true,
   imports: [
     CommonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
     MatProgressSpinnerModule,
-    FormsModule,
-    ReactiveFormsModule,
     RouterModule,
     MatMenuModule,
     MatButtonModule,
-    MatChipsModule,
     MatExpansionModule,
     MatTooltipModule,
 
@@ -75,7 +65,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     { label: "Equal", value: 'equal' },
     { label: "Between", value: 'between' },
   ]
-
 
   private _cdr: ChangeDetectorRef = inject(ChangeDetectorRef)
   private _unsubscribeAll: Subject<any> = new Subject<any>();
@@ -132,13 +121,18 @@ export class HomeComponent implements OnInit, OnDestroy {
           list = list.filter(i => {
             switch (event[k].comparison) {
               case 'greater-than':
-                return i[k] > Number(event[k].value)
+                if (event[k].value !== null) return i[k] > Number(event[k].value)
+                else return i[k]
               case 'less-than':
-                return i[k] < Number(event[k].value)
+                if (event[k].value !== null) return i[k] < Number(event[k].value)
+                else return i[k]
               case 'equal':
-                return i[k] === Number(event[k].value)
+                if (event[k].value !== null) return i[k] === Number(event[k].value)
+                else return i[k]
               case 'between':
-                return i[k] >= Number(event[k].value) && i[k] <= Number(event[k].value_2)
+                if (event[k].value !== null && event[k].value_2 !== null)
+                  return i[k] >= Number(event[k].value) && i[k] <= Number(event[k].value_2)
+                else return i[k]
               default: return i
             }
           })
