@@ -96,6 +96,7 @@ export function isNullOrUndefined(value: Object): boolean {
   return value === undefined || value === null;
 }
 
+/** signals to ignore the click event of a parent element */
 export function ignoreClick(event: Event) {
   event.cancelBubble = true;
   event.stopPropagation();
@@ -103,6 +104,8 @@ export function ignoreClick(event: Event) {
 
 
 
+
+/** Pipe that replaces "_" and/or "-" with a space */
 @Pipe({
   name: 'removeUnderScore',
   standalone: true // This makes the pipe standalone

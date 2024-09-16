@@ -14,9 +14,8 @@
 
     <!-- Subtitle -->
     <div class="w-full text-lg font-light">
-      This is a table of saved employees, you can sort and filter the data
-      using the column headers. To view an employees details, click on that
-      employee.
+      This is a table of employees, sort and filter the data by clicking on the
+      table headers. To view an employees' details, click on that employee.
     </div>
 
     <!-- Filter bar -->
@@ -69,10 +68,10 @@
     }
 
     <!-- Employees Table -->
-    @if(es.loaded){
+    @if(es.loaded()){
     <div
       [ngClass]="{
-      'hidden':!es.loaded,
+      'hidden':!es.loaded(),
       }"
       class="transition duration-1000 shadow-lg w-full rounded ">
       <div class="px-4 sm:px-6 lg:px-8">

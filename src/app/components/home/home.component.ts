@@ -100,7 +100,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   // -------------------
 
   async initData() {
-    if (!this.es.loaded) await this.es.getEmployees()
+    if (!this.es.loaded()) await this.es.getEmployees()
 
     this.filter_value = null;
 
@@ -110,6 +110,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   catchSearch(event: any) {
+    console.log(event)
     this.filter_value = event
     let list = [...this.es.employees()]
 

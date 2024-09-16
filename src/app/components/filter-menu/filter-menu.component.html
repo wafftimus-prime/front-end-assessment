@@ -51,7 +51,7 @@
     Apply Filter
   </button>
   <button
-    [disabled]="filter_form.get(attr)?.pristine"
+    [disabled]="!filter_form.get([attr, 'value'])?.value"
     (click)="resetFilterControl(attr)"
     mat-flat-button
     color="warn">

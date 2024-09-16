@@ -28,7 +28,7 @@ export class DetailsComponent implements OnInit {
 
   async ngOnInit() {
     // Load employees if not loaded already,
-    if (!this.es.loaded) await this.es.getEmployees();
+    if (!this.es.loaded()) await this.es.getEmployees();
 
     // Fetch Id number from route
     const id = Number(this.route.snapshot.paramMap.get('id'))

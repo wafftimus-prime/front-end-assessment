@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { Subject, takeUntil } from 'rxjs';
-import { ignoreClick } from '../../data';
+import { BaseObjectModel, ignoreClick } from '../../data';
 
 @Component({
   selector: 'app-filter-menu',
@@ -30,11 +30,11 @@ export class FilterMenuComponent implements OnInit, OnDestroy {
   @Input() attr!: string
   @Input() type!: string
   @Input() filter_value?: any
-  @Input() attributes!: { label: string, type: string, attr: string }[]
+  @Input() attributes!: BaseObjectModel[]
 
   filter_form!: FormGroup;
   ignoreClick = ignoreClick;
-  comparisons: { label: string, value: any }[] = [
+  comparisons: BaseObjectModel[] = [
     { label: "Greater than", value: 'greater-than' },
     { label: "Less than", value: 'less-than' },
     { label: "Equal", value: 'equal' },
@@ -43,6 +43,7 @@ export class FilterMenuComponent implements OnInit, OnDestroy {
 
   @Output() catchSearch = new EventEmitter()
 
+  private _cdr: ChangeDetectorRef = inject(ChangeDetectorRef)
   private _fb: FormBuilder = inject(FormBuilder)
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -56,6 +57,7 @@ export class FilterMenuComponent implements OnInit, OnDestroy {
 
     // Use attributes in order to dynamically init the filter form
     this.attributes.forEach(a => {
+      const attribute: string = a.attr as string
 
       // Create form for each attribute
       const form: FormGroup = this._fb.group({
@@ -91,10 +93,10 @@ export class FilterMenuComponent implements OnInit, OnDestroy {
       }
 
       // If there is a value already in place for this filter, add it and make sure we can reset the filter
-      form.patchValue(this.filter_value?.[a.attr])
-      if (this.filter_value?.[a.attr]?.value) form.markAsDirty();
+      form.patchValue(this.filter_value?.[attribute])
+      if (this.filter_value?.[attribute]?.value) form.markAsDirty();
 
-      this.filter_form.addControl(a.attr, form);
+      this.filter_form.addControl(attribute, form);
     });
   }
 
@@ -129,10 +131,14 @@ export class FilterMenuComponent implements OnInit, OnDestroy {
     return this.filter_form.get([attribute, 'comparison']) as FormControl
   }
 
-  toggleFilterFormComparison(attribute: string, value: string) {
+  toggleFilterFormComparison(attribute: string, value: string | undefined) {
     this.formFilterComparisonControl(attribute).setValue(value)
     this.filter_form.get(attribute)?.markAsDirty()
   }
 
-  resetFilterControl = (attribute: string) => this.filter_form.get([attribute])?.reset();
+  resetFilterControl = (attribute: string) => {
+    this.filter_form.get([attribute])?.reset(null);
+    this._cdr.markForCheck()
+    this.catchSearch.emit(this.filter_form.value)
+  }
 }

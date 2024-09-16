@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -31,7 +31,7 @@ import { checkForVowel, EmployeesService, ignoreClick } from '../../data';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VowelSearchComponent implements OnInit, OnDestroy {
-  loading = signal(false)
+  loading: WritableSignal<boolean> = signal(false)
   es: EmployeesService = inject(EmployeesService)
   vowel_control: FormControl = new FormControl<string>("")
 
@@ -56,16 +56,19 @@ export class VowelSearchComponent implements OnInit, OnDestroy {
       .pipe(
         takeUntil(this._unsubscribeAll),
         filter(v => {
+          // Only trigger the subscription once a value has been input
           if (v && v !== "") return v
           else this.response = null
         }),
         takeUntil(this._unsubscribeAll),
         map(v => {
+          // Activate loading when the value is changed
           this.loading.set(true)
-          // remove all characters unless they are digits
+          // remove all characters unless they are digits and return the stripped string
           this.vowel_control.setValue(v.replace(/[^0-9]/g, ''), { emitEvent: false })
           return v.replace(/[^0-9]/g, '')
         }),
+        // Wait half a second to simulate waiting and calculating
         debounceTime(500)
       )
       .subscribe(v => {
