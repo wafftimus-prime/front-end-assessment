@@ -5,6 +5,7 @@ export interface EmployeeData {
   employee_age: number;
 
   initials?: string;
+  [key: string]: any;
 }
 
 export interface SortAttribute {

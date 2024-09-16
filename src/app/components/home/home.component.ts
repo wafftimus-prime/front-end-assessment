@@ -16,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { debounceTime, filter, map, Subject, takeUntil } from 'rxjs';
 import { checkForVowel, EmployeeData, EmployeesService, ignoreClick, sortArray } from '../../data';
+import { VowelSearchComponent } from '../vowel-search/vowel-search.component';
 
 @Component({
   selector: 'app-home',
@@ -38,17 +39,16 @@ import { checkForVowel, EmployeeData, EmployeesService, ignoreClick, sortArray }
     MatButtonModule,
     MatChipsModule,
     MatExpansionModule,
-    MatTooltipModule
+    MatTooltipModule,
+
+
+
+    VowelSearchComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  loading = signal(false)
   es: EmployeesService = inject(EmployeesService)
-  vowel_control: FormControl = new FormControl<string>("")
-
-  response!: string | null
-  valid_response!: boolean
 
   list!: EmployeeData[];
 
@@ -80,7 +80,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     { label: "Descending", value: 'desc' },
   ]
 
-  readonly VOWELS: string[] = ["a", "e", "i", "o", "u"]
   private _cdr: ChangeDetectorRef = inject(ChangeDetectorRef)
   private _fb: FormBuilder = inject(FormBuilder)
   private _unsubscribeAll: Subject<any> = new Subject<any>();
@@ -92,65 +91,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     await this.initData()
 
-    this.initFilterForm()
-
     // Subscribe to value changes in order to handle sorting the current header
     this.initSortSub()
 
     // Subscribe to value changes in order to handle filtering the list
-    this.filter_form.valueChanges
-      .pipe(takeUntil(this._unsubscribeAll))
-      .subscribe(value => {
-        console.log(value)
-        // this.catchSearch(String(value))
-      })
-
-    // Subscribe to value changes and wait 1 second in order to simulate searching
-    // for employee by id and returning if the name begins with a vowel.
-    this.vowel_control.valueChanges
-      .pipe(
-        takeUntil(this._unsubscribeAll),
-        filter(v => {
-          if (v && v !== "") return v
-          else this.response = null
-        }),
-        takeUntil(this._unsubscribeAll),
-        map(v => {
-          this.loading.set(true)
-          this.vowel_control.setValue(v.replace(/[^0-9]/g, ''), { emitEvent: false })
-          return v.replace(/[^0-9]/g, '')
-        }),
-        debounceTime(500)
-      )
-      .subscribe(v => {
-        // this.vowel_control.setValue(v.replace(/[^0-9]/g, ''), { emitEvent: false })
-
-        const regex = /^\d+$/;
-        if (regex.test(v)) {
-          const employee = this.list.find(d => d.id === Number(v))
-
-          if (employee?.employee_name) {
-            this.valid_response = checkForVowel(employee?.employee_name)
-            if (checkForVowel(employee?.employee_name)) this.response = employee?.employee_name
-            else this.response = "Employee’s name does not begin with a vowel"
-          }
-          else {
-            this.valid_response = false
-            this.response = "Invalid Employee ID"
-          }
-        }
-        else {
-          this.response = "Please enter a valid ID to check for vowels!"
-          this.valid_response = false
-        }
-        this.loading.set(false)
-        console.log(v)
-      });
+    this.initFilterForm();
+    this.initFilterSub();
   }
 
   /**
    * On destroy
-   */
+  */
   ngOnDestroy(): void {
     // Unsubscribe from all subscriptions
     this._unsubscribeAll.next(null);
@@ -181,6 +132,15 @@ export class HomeComponent implements OnInit, OnDestroy {
       })
   }
 
+  initFilterSub() {
+    this.filter_form.valueChanges
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe(value => {
+        this.catchSearch(value)
+      })
+
+  }
+
   initFilterForm() {
     this.filter_form = this._fb.group({})
 
@@ -188,57 +148,105 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.attributes.forEach(a => {
 
       const form: FormGroup = this._fb.group({
-        value: null
+        value: null,
+        type: a.type
       })
-      if (a.type === 'number') form.addControl('comparison', this._fb.control(null))
+      if (a.type === 'number') {
+        form.addControl('comparison', this._fb.control(null))
+        form.addControl('value_2', this._fb.control(null));
+
+        // Make sure that the first value is always less than the second value
+        form.get('value')?.valueChanges.subscribe(value => {
+          const _vaule = Number(value)
+
+          if (_vaule >= Number(form.get('value_2')?.value)) {
+            form.get('value_2')?.setValue(Number(_vaule) + 1, { emitEvent: false });
+          }
+          else if (_vaule < 0) form.get('value')?.setValue(0, { emitEvent: false });
+          form.get('value_2')?.updateValueAndValidity({ emitEvent: false });
+        });
+
+        // Make sure that the second value is always greater than the first value
+        form.get('value_2')?.valueChanges.subscribe(value => {
+          const _vaule = Number(value)
+          if (_vaule <= Number(form.get('value')?.value)) {
+            if (Number(_vaule) - 1 > 0) form.get('value')?.setValue(Number(_vaule) - 1, { emitEvent: false });
+          }
+          form.get('value')?.updateValueAndValidity({ emitEvent: false });
+        });
+
+
+
+      }
 
       this.filter_form.addControl(a.attr, form);
     });
   }
 
-  formFilterControl(attribute: string): FormControl {
+  formFilterValueControl(attribute: string): FormControl {
     return this.filter_form.get([attribute, 'value']) as FormControl
+  }
+
+  formFilterValue2Control(attribute: string): FormControl {
+    return this.filter_form.get([attribute, 'value_2']) as FormControl
+  }
+
+  formFilterComparisonControl(attribute: string): FormControl {
+    return this.filter_form.get([attribute, 'comparison']) as FormControl
+  }
+
+  toggleFilterFormComparison(attribute: string, value: string) {
+    this.formFilterComparisonControl(attribute).setValue(value)
+    this.filter_form.get(attribute)?.markAsDirty()
   }
 
   resetFilterControl = (attribute: string) => this.filter_form.get([attribute])?.reset();
 
   catchSearch(event: any, skip_update?: boolean) {
-    let users = [...this.es.employees()]
+    let list = [...this.es.employees()]
 
-    users = users.filter(u => {
-      return u.employee_name?.toLocaleLowerCase()?.includes(event.toLocaleLowerCase()) ||
-        String(u.id)?.toLocaleLowerCase()?.includes(event.toLocaleLowerCase()) ||
-        String(u.employee_age)?.toLocaleLowerCase()?.includes(event.toLocaleLowerCase()) ||
-        String(u.employee_salary)?.toLocaleLowerCase()?.includes(event.toLocaleLowerCase())
+    Object.keys(event).forEach(k => {
+
+      switch (event[k].type) {
+        case 'number':
+          list = list.filter(i => {
+            switch (event[k].comparison) {
+              case 'greater-than':
+                return i[k] > Number(event[k].value)
+              case 'less-than':
+                return i[k] < Number(event[k].value)
+              case 'equal':
+                return i[k] === Number(event[k].value)
+              case 'between':
+                return i[k] > Number(event[k].value) && i[k] > Number(event[k].value_2)
+              default: return i
+            }
+          })
+          break;
+        case 'string':
+          list = list.filter(i => {
+            if (event[k].value)
+              return (i[k])?.toLocaleLowerCase()?.includes(event[k].value.toLocaleLowerCase())
+            else return i
+          })
+          break;
+
+        default:
+          break;
+      }
+
     })
 
-    this.list = users
+    this.list = list
+    this.catchSort(this.sort_form.value, this.list)
     this._cdr.markForCheck()
   }
 
-  // applyFilter(event: Event) {
-  //   const filterValue = (event.target as HTMLInputElement).value;
-  //   this.dataSource.filter = filterValue.trim().toLowerCase();
-
-  //   if (this.dataSource.paginator) {
-  //     this.dataSource.paginator.firstPage();
-  //   }
-  // }
-
-  setSortDirection(item: { value: any, label: string }, attr: string) {
-    this.sort_form.get('direction')?.setValue(item.value);
-    // console.log(item, attr)
-    // if (!!item.value && this.sort_form.get('direction')?.value !== item.value && this.active_header.attr === attr)
-    //   this.sort_form.get('direction')?.setValue(item.value);
-    // else this.sort_form.get('direction')?.setValue(null);
-  }
-
-  catchSort(sort: any) {
-    console.log(sort)
+  catchSort(sort: any, list?: EmployeeData[]) {
     if (sort.attribute && sort.type) {
       this.list = sortArray(this.list, sort.attribute, sort.type, sort.direction)
     }
-    else this.list = this.es.employees()
+    else this.list = list || this.es.employees()
   }
 
 }

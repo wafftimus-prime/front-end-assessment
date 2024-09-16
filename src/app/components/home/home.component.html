@@ -9,61 +9,7 @@
       </div>
 
       <!-- Vowel Search -->
-      <button
-        (click)="vowel_control.reset()"
-        [matMenuTriggerFor]="vowelSearch"
-        mat-flat-button
-        color="primary"
-        class="flex items-center gap-2 text-white">
-        <mat-icon>search</mat-icon>
-        <div class="whitespace-nowrap">Vowel Search</div>
-      </button>
-      <mat-menu #vowelSearch="matMenu">
-        <div (click)="ignoreClick($event)"
-          class="flex flex-col gap-4 w-full p-3 items-center">
-
-          <div
-            class="w-fulltext-md font-light flex gap-4">
-            Employee Name Vowel Search
-
-            <svg
-              matTooltip="Enter an employee ID in the search bar
-                below, and if the corresponding employees name starts with a vowel,
-                the employees name will be displayed, if not an error message will
-                appear."
-              xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-              class="size-6 mx-2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-            </svg>
-
-          </div>
-
-          <mat-form-field subscriptSizing="dynamic" class="w-full">
-            <input
-              matInput
-              [formControl]="vowel_control"
-              placeholder="Employee ID">
-          </mat-form-field>
-
-          <div>
-            @if(loading()){
-            <mat-spinner [diameter]="50"></mat-spinner>
-            }
-            @else if(!loading() && response){
-            <div
-              [ngClass]="{
-                'text-red-600': !valid_response,
-                'text-green-600': valid_response
-              }"
-              class="font-xl font-medium">
-              {{response}}
-            </div>
-            }
-          </div>
-        </div>
-      </mat-menu>
+      <app-vowel-search></app-vowel-search>
     </div>
 
     <!-- Subtitle -->
@@ -104,24 +50,46 @@
                           {{a.label}}
                         </span>
 
-                        <div class></div>
+                        <div class="flex space-x-2">
 
-                        @if(sort_form.value.attribute === a.attr){
-                        @if(sort_form.value.direction === 'asc'){
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                          viewBox="0 0 24 24" stroke-width="1.5"
-                          stroke="currentColor" class="size-6">
-                          <path stroke-linecap="round" stroke-linejoin="round"
-                            d="m4.5 15.75 7.5-7.5 7.5 7.5" />
-                        </svg>
-                        } @else if(sort_form.value.direction === 'desc'){
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                          viewBox="0 0 24 24" stroke-width="1.5"
-                          stroke="currentColor" class="size-6">
-                          <path stroke-linecap="round" stroke-linejoin="round"
-                            d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                        }}
+                          @if(a.type==='number'){
+                          @if(formFilterValueControl(a.attr).value ===
+                          'between'){
+                          @if(formFilterValueControl(a.attr).value &&
+                          formFilterValue2Control(a.attr).value ){
+                          <ng-container
+                            [ngTemplateOutlet]="filterIcon"></ng-container>
+                          } } @else {
+                          @if(formFilterValueControl(a.attr).value){
+                          <ng-container
+                            [ngTemplateOutlet]="filterIcon"></ng-container>
+
+                          } } }
+
+                          @if(a.type==='string' &&
+                          formFilterValueControl(a.attr).value){
+                          <ng-container
+                            [ngTemplateOutlet]="filterIcon"></ng-container>
+
+                          }
+
+                          @if(sort_form.value.attribute === a.attr){
+                          @if(sort_form.value.direction === 'asc'){
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                          </svg>
+                          } @else if(sort_form.value.direction === 'desc'){
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                          </svg>
+                          }}
+                        </div>
                       </div>
                     </th>
                     }
@@ -148,20 +116,26 @@
                   }
                 </tbody>
                 }@else {
-                <tfoot>
+                <tfoot class="bg-white">
                   <tr>
                     <td class="w-full text-center">
                       There are no employees that match your filters.
                     </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                   </tr>
                 </tfoot>
                 }
                 } @else {
-                <tfoot>
+                <tfoot class="bg-white">
                   <tr>
                     <td class="w-full text-center"> There are no employees
                       saved!
                     </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                   </tr>
                 </tfoot>
                 }
@@ -191,7 +165,7 @@
             <mat-panel-title>
               <div class="font-medium flex items-center justify-between gap-6">
                 Filters
-                <mat-icon>filter_list</mat-icon>
+                <ng-container [ngTemplateOutlet]="filterIcon"></ng-container>
               </div>
             </mat-panel-title>
           </mat-expansion-panel-header>
@@ -201,8 +175,9 @@
               class="grid grid-cols-2 gap-2">
               <mat-chip-option
                 *ngFor="let item of comparisons"
-                [selected]="filter_form.get(attr)?.value === (item.value || item)"
-                (click)="filter_form.get(attr)?.setValue(item.value || item)">
+                [selectable]="!(formFilterComparisonControl(attr).value === item.value)"
+                [selected]="formFilterComparisonControl(attr).value === item.value"
+                (click)="toggleFilterFormComparison(attr, item.value)">
                 <span class="text-sm">
                   {{ item.label || item }}
                 </span>
@@ -217,9 +192,26 @@
               <input
                 [type]="type==='number' ? 'number':'text'"
                 matInput
-                [formControl]="formFilterControl(attr)"
+                [formControl]="formFilterValueControl(attr)"
+                [min]="type==='number' ? 0:null"
+                [max]="type==='number' ? formFilterValue2Control(attr).value:null"
                 placeholder="Filter value">
             </mat-form-field>
+
+            @if(type==='number' && formFilterComparisonControl(attr).value ===
+            'between'){
+
+            <mat-form-field (click)="ignoreClick($event)"
+              subscriptSizing="dynamic"
+              class="w-full">
+              <input
+                [type]="type==='number' ? 'number':'text'"
+                matInput
+                [min]="type==='number' ? formFilterValueControl(attr).value:null"
+                [formControl]="formFilterValue2Control(attr)"
+                placeholder="Filter value">
+            </mat-form-field>
+            }
 
             <button
               [disabled]="filter_form.get(attr)?.pristine"
@@ -248,7 +240,7 @@
               <mat-chip-option
                 [selected]="sort_form.get('attribute')?.value === attr && sort_form.get('direction')?.value === item.value"
                 [selectable]="!(sort_form.get('attribute')?.value === attr)"
-                (click)="setSortDirection(item, attr)">
+                (click)="sort_form.get('direction')?.setValue(item.value)">
                 <span class="text-sm">
                   {{ item.label || item }}
                 </span>
@@ -270,3 +262,12 @@
     </div>
   </ng-template>
 </mat-menu>
+
+<ng-template #filterIcon>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+    class="size-6">
+    <path stroke-linecap="round" stroke-linejoin="round"
+      d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+  </svg>
+</ng-template>
