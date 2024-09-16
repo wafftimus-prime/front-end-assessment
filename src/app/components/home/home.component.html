@@ -241,17 +241,30 @@
               </div>
             </mat-panel-title>
           </mat-expansion-panel-header>
-          <mat-chip-listbox>
-            <mat-chip-option
-              *ngFor="let item of sorts"
-              [selected]="sort_form.get('attribute')?.value === attr && sort_form.get('direction')?.value === item.value"
-              [selectable]="!(sort_form.get('attribute')?.value === attr)"
-              (click)="setSortDirection(item, attr)">
-              <span class="text-sm">
-                {{ item.label || item }}
-              </span>
-            </mat-chip-option>
-          </mat-chip-listbox>
+          <div class="flex flex-col gap-2">
+
+            <mat-chip-listbox>
+              @for ( item of sorts; track item.label) {
+              <mat-chip-option
+                [selected]="sort_form.get('attribute')?.value === attr && sort_form.get('direction')?.value === item.value"
+                [selectable]="!(sort_form.get('attribute')?.value === attr)"
+                (click)="setSortDirection(item, attr)">
+                <span class="text-sm">
+                  {{ item.label || item }}
+                </span>
+              </mat-chip-option>
+              }
+            </mat-chip-listbox>
+
+            <button
+              [disabled]="!sort_form.get('direction')?.value"
+              (click)="sort_form.reset()"
+              mat-flat-button
+              color="warn">
+              Reset Sort
+            </button>
+          </div>
+
         </mat-expansion-panel>
       </mat-accordion>
     </div>

@@ -75,7 +75,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     { label: "Equal", value: 'equal' },
     { label: "Between", value: 'between' },
   ]
-  sorts: { label: string, value: string }[] = [
+  sorts: { label: string, value: string | null }[] = [
     { label: "Ascending", value: 'asc' },
     { label: "Descending", value: 'desc' },
   ]
