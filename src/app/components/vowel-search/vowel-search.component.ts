@@ -40,7 +40,9 @@ export class VowelSearchComponent implements OnInit, OnDestroy {
 
   ignoreClick = ignoreClick;
 
+  readonly tooltipText = "Enter an employee ID in the search bar below, and if the corresponding employees name starts with a vowel, the employees name will be displayed, if not an error message will appear.";
   readonly VOWELS: string[] = ["a", "e", "i", "o", "u"]
+
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
   // -------------------
