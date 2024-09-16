@@ -86,62 +86,6 @@ export function sortArray(array: any[], attribute: string, type: 'boolean' | 'st
   return sortedArray;
 }
 
-export function baseFilterFunction(list: any[], filters: { [key: string]: any }, attributes: any[]) {
-  const final_filters: any[] = [];
-
-  Object.keys(filters).forEach(i => {
-    const filter_index = attributes.findIndex(f => f.name === i)
-    attributes[filter_index]['value'] = filters[i]
-  })
-
-  attributes.forEach(f => {
-    if (!isNullOrUndefined(f.value) && f.value !== '' && f.value.length !== 0)
-      final_filters.push({
-        name: f.name,
-        value: f.value,
-        type: f.type
-      })
-  })
-
-  // Filter list based on filter values
-  final_filters.forEach(f => {
-    if (f.type === 'string') {
-      list = list.filter(i => i[f.name].toLocaleLowerCase().includes(f.value.toLocaleLowerCase()))
-    }
-    if (f.type === 'number') {
-      list = list.filter(i => i[f.name] === f.value)
-    }
-    if (f.type === 'number-range') {
-      list = list.filter(i => {
-        return i[`${f.name}_start`] <= f.value && i[`${f.name}_end`] >= f.value
-      })
-    }
-    if (f.type === 'date') {
-      list = list.filter(i => {
-        console.log(moment(i[f.name]).startOf('day').toISOString())
-        console.log(moment(f.value).startOf('day').toISOString())
-        return moment(i[f.name]).startOf('day').toISOString() === moment(f.value).startOf('day').toISOString()
-      })
-    }
-    if (f.type === 'date-range') {
-      list = list.filter(i => {
-        return i[`${f.name}_start`] <= f.value && i[`${f.name}_end`] >= f.value
-      })
-    }
-    if (f.type === 'boolean') {
-      list = list.filter(i => i[f.name] === f.value)
-    }
-    if (f.type === 'select') {
-      list = list.filter(i => i[f.name] === f.value)
-    }
-    if (f.type === 'multi-select') {
-      list = list.filter(i => f.value.includes(i[f.name]))
-    }
-  })
-
-  return { list, final_filters }
-}
-
 /**
  * To check whether the object is null or undefined.
  * @param {Object} value - To check the object is null or undefined

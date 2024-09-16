@@ -52,7 +52,6 @@ export class VowelSearchComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     // Subscribe to value changes and wait 1 second in order to simulate searching
     // for employee by id and returning if the name begins with a vowel.
-
     this.vowel_control.valueChanges
       .pipe(
         takeUntil(this._unsubscribeAll),
@@ -63,28 +62,33 @@ export class VowelSearchComponent implements OnInit, OnDestroy {
         takeUntil(this._unsubscribeAll),
         map(v => {
           this.loading.set(true)
+          // remove all characters unless they are digits
           this.vowel_control.setValue(v.replace(/[^0-9]/g, ''), { emitEvent: false })
           return v.replace(/[^0-9]/g, '')
         }),
         debounceTime(500)
       )
       .subscribe(v => {
-        // this.vowel_control.setValue(v.replace(/[^0-9]/g, ''), { emitEvent: false })
-
         const regex = /^\d+$/;
+        // If value entered is a number
         if (regex.test(v)) {
           const employee = this.es.employees().find(d => d.id === Number(v))
 
+          // If the employee was found
           if (employee?.employee_name) {
             this.valid_response = checkForVowel(employee?.employee_name)
+            // If the employees name starts with a vowel
             if (checkForVowel(employee?.employee_name)) this.response = employee?.employee_name
-            else this.response = "Employee’s name does not begin with a vowel"
+            // If the employees name doesn't starts with a vowel
+            else this.response = "Employee's name does not begin with a vowel"
           }
+          // If the employee was not found
           else {
             this.valid_response = false
-            this.response = "Invalid Employee ID"
+            this.response = "Invalid employee ID"
           }
         }
+        // If value entered was a removed character then display this error
         else {
           this.response = "Please enter a valid ID to check for vowels!"
           this.valid_response = false

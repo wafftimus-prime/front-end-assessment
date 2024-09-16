@@ -26,7 +26,6 @@ import { VowelSearchComponent } from '../vowel-search/vowel-search.component';
     MatButtonModule,
     MatExpansionModule,
     MatTooltipModule,
-
     TitleCasePipe,
     RemoveUnderScorePipe,
     FilterMenuComponent,
@@ -73,6 +72,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   // VALUE ACCESSORS
   // -------------------
 
+  /** Checks whether or not `filter_value` has any valid filters in place */
   get hasFiltersInPlace(): boolean {
     if (this.filter_value) return !Object.values(this.filter_value).every((v: any) => !!!v.value)
     else return false
@@ -111,7 +111,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   catchSearch(event: any) {
     this.filter_value = event
-    console.log(event)
     let list = [...this.es.employees()]
 
     Object.keys(event).forEach(k => {

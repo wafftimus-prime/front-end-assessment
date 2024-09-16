@@ -41,11 +41,12 @@ export class SortMenuComponent implements OnInit, OnDestroy {
     this.sort_form.get('direction')?.valueChanges
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe(value => {
-        console.log(value)
+        // If the direction is not null, set the attribute and type to the active header
         if (value) {
           this.sort_form.get('attribute')?.setValue(this.active_header.attr)
           this.sort_form.get('type')?.setValue(this.active_header.type)
         }
+        // If the direction is null then reset all other form controls
         else {
           this.sort_form.get('attribute')?.reset()
           this.sort_form.get('type')?.reset()

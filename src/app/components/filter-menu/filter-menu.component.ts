@@ -32,8 +32,6 @@ export class FilterMenuComponent implements OnInit, OnDestroy {
   @Input() filter_value?: any
   @Input() attributes!: { label: string, type: string, attr: string }[]
 
-
-
   filter_form!: FormGroup;
   ignoreClick = ignoreClick;
   comparisons: { label: string, value: any }[] = [
@@ -53,17 +51,20 @@ export class FilterMenuComponent implements OnInit, OnDestroy {
   // -------------------
 
   async ngOnInit() {
-
+    // Init filter form
     this.filter_form = this._fb.group({})
 
     // Use attributes in order to dynamically init the filter form
     this.attributes.forEach(a => {
 
+      // Create form for each attribute
       const form: FormGroup = this._fb.group({
         value: null,
         type: a.type,
         label: a.label
       })
+
+      // If attribute is a number add the comparison and value_2 controls to the form, also add subscriptions to make sure that values are never in valid (ie, min > max || max < min)
       if (a.type === 'number') {
         form.addControl('comparison', this._fb.control(null))
         form.addControl('value_2', this._fb.control(null));
@@ -87,8 +88,6 @@ export class FilterMenuComponent implements OnInit, OnDestroy {
           }
           form.get('value')?.updateValueAndValidity({ emitEvent: false });
         });
-
-
       }
 
       // If there is a value already in place for this filter, add it and make sure we can reset the filter
@@ -137,7 +136,4 @@ export class FilterMenuComponent implements OnInit, OnDestroy {
   }
 
   resetFilterControl = (attribute: string) => this.filter_form.get([attribute])?.reset();
-
-
-
 }

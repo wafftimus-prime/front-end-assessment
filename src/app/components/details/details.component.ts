@@ -36,8 +36,6 @@ export class DetailsComponent implements OnInit {
     // Select employee in service if not already selected
     if (typeof this.es.selected_employee !== 'number') this.es.selectEmployee(id)
 
-    console.log(this.es.employee)
-
     this._cdr.markForCheck()
   }
 
