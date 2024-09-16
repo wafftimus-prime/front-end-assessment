@@ -3,21 +3,21 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { VowelSearchComponent } from './vowel-search.component';
+import { SortMenuComponent } from './sort-menu.component';
 
-describe('VowelSearchComponent', () => {
-  let component: VowelSearchComponent;
-  let fixture: ComponentFixture<VowelSearchComponent>;
+describe('SortMenuComponent', () => {
+  let component: SortMenuComponent;
+  let fixture: ComponentFixture<SortMenuComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [VowelSearchComponent]
+      declarations: [ SortMenuComponent ]
     })
-      .compileComponents();
+    .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(VowelSearchComponent);
+    fixture = TestBed.createComponent(SortMenuComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

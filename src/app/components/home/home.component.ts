@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit, Signal, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -14,9 +14,10 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { debounceTime, filter, map, Subject, takeUntil } from 'rxjs';
-import { checkForVowel, EmployeeData, EmployeesService, ignoreClick, sortArray } from '../../data';
+import { Subject, takeUntil } from 'rxjs';
+import { EmployeeData, EmployeesService, ignoreClick, sortArray } from '../../data';
 import { VowelSearchComponent } from '../vowel-search/vowel-search.component';
+import { SortMenuComponent } from '../sort-menu/sort-menu.component';
 
 @Component({
   selector: 'app-home',
@@ -43,6 +44,7 @@ import { VowelSearchComponent } from '../vowel-search/vowel-search.component';
 
 
 
+    SortMenuComponent,
     VowelSearchComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,7 +54,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   list!: EmployeeData[];
 
-  active_header!: any;
+  active_header!: { label: string, type: string, attr: string };
   attributes: { label: string, type: string, attr: string }[] = [
     { attr: 'id', label: 'ID', type: 'number' },
     { attr: 'employee_name', label: 'Name', type: 'string' },
@@ -60,13 +62,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     { attr: 'employee_age', label: 'Age', type: 'number' },
   ];
 
-  filter_form!: FormGroup;
+  sort_value!: { attribute: string, type: string, direction: string }
   sort_form: FormGroup = new FormGroup({
     attribute: new FormControl(null),
     type: new FormControl(null),
     direction: new FormControl(null),
   });
 
+  filter_form!: FormGroup;
   ignoreClick = ignoreClick;
 
   comparisons: { label: string, value: any }[] = [
@@ -74,10 +77,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     { label: "Less than", value: 'less-than' },
     { label: "Equal", value: 'equal' },
     { label: "Between", value: 'between' },
-  ]
-  sorts: { label: string, value: string | null }[] = [
-    { label: "Ascending", value: 'asc' },
-    { label: "Descending", value: 'desc' },
   ]
 
   private _cdr: ChangeDetectorRef = inject(ChangeDetectorRef)
@@ -117,19 +116,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   initSortSub() {
-    this.sort_form.get('direction')?.valueChanges
-      .pipe(takeUntil(this._unsubscribeAll))
-      .subscribe(value => {
-        if (value) {
-          this.sort_form.get('attribute')?.setValue(this.active_header.attr)
-          this.sort_form.get('type')?.setValue(this.active_header.type)
-        }
-        else if (this.active_header.attr === this.sort_form.get('attribute')?.value) {
-          this.sort_form.get('attribute')?.reset()
-          this.sort_form.get('type')?.reset()
-        }
-        this.catchSort(this.sort_form.value)
-      })
   }
 
   initFilterSub() {
@@ -238,11 +224,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     })
 
     this.list = list
-    this.catchSort(this.sort_form.value, this.list)
+    this.catchSort(this.sort_value, this.list)
     this._cdr.markForCheck()
   }
 
   catchSort(sort: any, list?: EmployeeData[]) {
+    console.log(sort)
+    this.sort_value = sort
     if (sort.attribute && sort.type) {
       this.list = sortArray(this.list, sort.attribute, sort.type, sort.direction)
     }

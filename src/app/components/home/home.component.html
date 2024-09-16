@@ -73,15 +73,16 @@
 
                           }
 
-                          @if(sort_form.value.attribute === a.attr){
-                          @if(sort_form.value.direction === 'asc'){
+                          @if(sort_value && sort_value.attribute === a.attr){
+                          @if(sort_value && sort_value.direction === 'asc'){
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round"
                               d="m4.5 15.75 7.5-7.5 7.5 7.5" />
                           </svg>
-                          } @else if(sort_form.value.direction === 'desc'){
+                          } @else if(sort_value && sort_value.direction ===
+                          'desc'){
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-6">
@@ -233,30 +234,11 @@
               </div>
             </mat-panel-title>
           </mat-expansion-panel-header>
-          <div class="flex flex-col gap-2">
-
-            <mat-chip-listbox>
-              @for ( item of sorts; track item.label) {
-              <mat-chip-option
-                [selected]="sort_form.get('attribute')?.value === attr && sort_form.get('direction')?.value === item.value"
-                [selectable]="!(sort_form.get('attribute')?.value === attr)"
-                (click)="sort_form.get('direction')?.setValue(item.value)">
-                <span class="text-sm">
-                  {{ item.label || item }}
-                </span>
-              </mat-chip-option>
-              }
-            </mat-chip-listbox>
-
-            <button
-              [disabled]="!sort_form.get('direction')?.value"
-              (click)="sort_form.reset()"
-              mat-flat-button
-              color="warn">
-              Reset Sort
-            </button>
-          </div>
-
+          <app-sort-menu
+            (catchSort)="catchSort($event)"
+            [sort_form]="sort_form"
+            [active_header]="active_header"
+            [attr]="attr"></app-sort-menu>
         </mat-expansion-panel>
       </mat-accordion>
     </div>
