@@ -1,0 +1,259 @@
+<div class="w-full overflow-hidden flex justify-center pt-4">
+  <div class="flex max-w-4xl w-full flex-col items-center gap-4">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center w-full">
+      <!-- Title -->
+      <div class="text-2xl font-light">
+        Employees List
+      </div>
+
+      <!-- Vowel Search -->
+      <button
+        (click)="vowel_control.reset()"
+        [matMenuTriggerFor]="vowelSearch"
+        mat-flat-button
+        color="primary"
+        class="flex items-center gap-2 text-white">
+        <mat-icon>search</mat-icon>
+        <div class="whitespace-nowrap">Vowel Search</div>
+      </button>
+      <mat-menu #vowelSearch="matMenu">
+        <div (click)="ignoreClick($event)"
+          class="flex flex-col gap-4 w-full p-3 items-center">
+
+          <div
+            class="w-fulltext-md font-light flex gap-4">
+            Employee Name Vowel Search
+
+            <svg
+              matTooltip="Enter an employee ID in the search bar
+                below, and if the corresponding employees name starts with a vowel,
+                the employees name will be displayed, if not an error message will
+                appear."
+              xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+              class="size-6 mx-2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+            </svg>
+
+          </div>
+
+          <mat-form-field subscriptSizing="dynamic" class="w-full">
+            <input
+              matInput
+              [formControl]="vowel_control"
+              placeholder="Employee ID">
+          </mat-form-field>
+
+          <div>
+            @if(loading()){
+            <mat-spinner [diameter]="50"></mat-spinner>
+            }
+            @else if(!loading() && response){
+            <div
+              [ngClass]="{
+                'text-red-600': !valid_response,
+                'text-green-600': valid_response
+              }"
+              class="font-xl font-medium">
+              {{response}}
+            </div>
+            }
+          </div>
+        </div>
+      </mat-menu>
+    </div>
+
+    <!-- Subtitle -->
+    <div class="w-full text-lg font-light">
+      This is a table of saved employees, you can sort and filter the data
+      using the column headers. To view an employees details, click on that
+      employee.
+    </div>
+
+    <!-- Employees Table -->
+    @if(es.loaded){
+    <div
+      [ngClass]="{
+      'hidden':!es.loaded,
+      }"
+      class="transition duration-1000 shadow-lg w-full rounded">
+      <div class="px-4 sm:px-6 lg:px-8">
+        <div class="max-h-96 lg:max-h-120 flow-root">
+          <div
+            class="overflow-auto max-h-96 lg:max-h-120 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div class="inline-block min-w-full pb-2 align-middle">
+              <table class="min-w-full divide-y divide-gray-300">
+                <thead>
+                  <tr class="divide-x-2">
+                    @for ( a of attributes; track a.attr) {
+                    <th
+                      (click)="active_header = a"
+                      [matMenuTriggerFor]="menu"
+                      [matMenuTriggerData]="{
+                        label: a.label,
+                        attr: a.attr,
+                        type: a.type,
+                      }"
+                      scope="col"
+                      class="cursor-pointer text-left sticky top-0 z-10 bg-white bg-opacity-100 whitespace-nowrap px-2 py-3.5 text-sm font-semibold text-gray-900">
+                      <div class="flex justify-between grow-0">
+                        <span class="truncate">
+                          {{a.label}}
+                        </span>
+
+                        <div class></div>
+
+                        @if(sort_form.value.attribute === a.attr){
+                        @if(sort_form.value.direction === 'asc'){
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                          viewBox="0 0 24 24" stroke-width="1.5"
+                          stroke="currentColor" class="size-6">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                        </svg>
+                        } @else if(sort_form.value.direction === 'desc'){
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                          viewBox="0 0 24 24" stroke-width="1.5"
+                          stroke="currentColor" class="size-6">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                        }}
+                      </div>
+                    </th>
+                    }
+                  </tr>
+                </thead>
+                @if(es.employees().length){
+                @if(list.length){
+                <tbody class="divide-y divide-gray-200 bg-white">
+                  @for ( item of list; track item.id) {
+                  <tr
+                    (click)="es.selectEmployee(item.id)"
+                    [routerLink]="['../', item.id]"
+                    class="cursor-pointer divide-x-2 lg:hover:bg-amber-200 text-sm">
+                    <td
+                      class="whitespace-nowrap p-2 font-medium text-gray-900">
+                      {{ item.id }}</td>
+                    <td class="whitespace-normal p-2 text-gray-500">{{
+                      item.employee_name }}</td>
+                    <td class="whitespace-nowrap p-2 text-gray-500">
+                      {{ item.employee_salary | currency }}</td>
+                    <td class="whitespace-nowrap p-2 text-gray-500">
+                      {{ item.employee_age }}</td>
+                  </tr>
+                  }
+                </tbody>
+                }@else {
+                <tfoot>
+                  <tr>
+                    <td class="w-full text-center">
+                      There are no employees that match your filters.
+                    </td>
+                  </tr>
+                </tfoot>
+                }
+                } @else {
+                <tfoot>
+                  <tr>
+                    <td class="w-full text-center"> There are no employees
+                      saved!
+                    </td>
+                  </tr>
+                </tfoot>
+                }
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }@else {
+    <mat-spinner></mat-spinner>
+    }
+  </div>
+</div>
+
+<mat-menu (click)="ignoreClick($event)" #menu="matMenu">
+  <ng-template matMenuContent let-type="type" let-label="label" let-attr="attr">
+    <div class="px-2">
+      <div class="flex flex-col w-full font-medium pb-2">
+        {{label}} Menu
+      </div>
+
+      <mat-accordion (click)="ignoreClick($event)">
+        <!-- Filters -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <div class="font-medium flex items-center justify-between gap-6">
+                Filters
+                <mat-icon>filter_list</mat-icon>
+              </div>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="flex flex-col gap-2">
+            @if(type==='number'){
+            <mat-chip-listbox (click)="ignoreClick($event)"
+              class="grid grid-cols-2 gap-2">
+              <mat-chip-option
+                *ngFor="let item of comparisons"
+                [selected]="filter_form.get(attr)?.value === (item.value || item)"
+                (click)="filter_form.get(attr)?.setValue(item.value || item)">
+                <span class="text-sm">
+                  {{ item.label || item }}
+                </span>
+              </mat-chip-option>
+            </mat-chip-listbox>
+            }
+
+            <!-- Filter Value -->
+            <mat-form-field (click)="ignoreClick($event)"
+              subscriptSizing="dynamic"
+              class="w-full">
+              <input
+                [type]="type==='number' ? 'number':'text'"
+                matInput
+                [formControl]="formFilterControl(attr)"
+                placeholder="Filter value">
+            </mat-form-field>
+
+            <button
+              [disabled]="filter_form.get(attr)?.pristine"
+              (click)="resetFilterControl(attr)"
+              mat-flat-button
+              color="warn">
+              Reset Filter
+            </button>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Sort -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <div class="font-medium flex items-center justify-between gap-6">
+                Sort
+                <mat-icon>sort</mat-icon>
+              </div>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-chip-listbox>
+            <mat-chip-option
+              *ngFor="let item of sorts"
+              [selected]="sort_form.get('attribute')?.value === attr && sort_form.get('direction')?.value === item.value"
+              [selectable]="!(sort_form.get('attribute')?.value === attr)"
+              (click)="setSortDirection(item, attr)">
+              <span class="text-sm">
+                {{ item.label || item }}
+              </span>
+            </mat-chip-option>
+          </mat-chip-listbox>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </ng-template>
+</mat-menu>

@@ -1,0 +1,44 @@
+<div class="w-full overflow-hidden flex justify-center pt-4">
+  <div class="flex max-w-4xl w-full flex-col items-center gap-4">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center w-full">
+      <!-- Title -->
+      <div class="text-2xl font-light">
+        Employee Details
+      </div>
+
+      <!-- Return button -->
+      <button
+        [routerLink]="['../']"
+        mat-flat-button
+        color="primary"
+        class="flex items-center gap-2 text-white">
+        <mat-icon>keyboard_arrow_left</mat-icon>
+        <div class="whitespace-nowrap">Return</div>
+      </button>
+    </div>
+
+    <div class="container mx-auto">
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="flex items-start mb-6">
+          <div
+            class="mr-6 relative inline-flex items-center justify-center w-16 h-16 overflow-hidden bg-gray-100 rounded-full">
+            <span
+              class="text-xl font-medium text-gray-600">{{es.employee.initials}}</span>
+          </div>
+          <div>
+            <h1
+              class="text-3xl font-semibold">{{es.employee.employee_name}}</h1>
+            <p class="text-lg font-medium text-gray-600">
+              Salary: {{es.employee.employee_salary|currency}}
+            </p>
+            <p class="text-sm text-gray-500 flex items-center">
+              Age: {{es.employee.employee_age}}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -25,3 +25,7 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+
+### FOR HIRING MANAGER 
+--> In order to run this application please run npm install and after that run npm run app-local in order to test this application both on a browser and on a mobile device.
