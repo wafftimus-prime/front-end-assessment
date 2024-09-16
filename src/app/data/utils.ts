@@ -1,4 +1,5 @@
 import moment from "moment";
+import { Pipe, PipeTransform } from '@angular/core';
 
 /**
  * Checks if the first letter of a given name is a vowel.
@@ -154,4 +155,20 @@ export function isNullOrUndefined(value: Object): boolean {
 export function ignoreClick(event: Event) {
   event.cancelBubble = true;
   event.stopPropagation();
+}
+
+
+
+@Pipe({
+  name: 'removeUnderScore',
+  standalone: true // This makes the pipe standalone
+})
+export class RemoveUnderScorePipe implements PipeTransform {
+  transform(value: any, ...args: any[]): any {
+    try {
+      return value.replace(/_|-/g, ' ');
+    } catch (e) {
+      return value;
+    }
+  }
 }

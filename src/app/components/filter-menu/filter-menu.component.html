@@ -1,0 +1,52 @@
+<div class="flex flex-col gap-2">
+  @if(type==='number'){
+  <mat-chip-listbox (click)="ignoreClick($event)"
+    class="grid grid-cols-2 gap-2">
+    <mat-chip-option
+      *ngFor="let item of comparisons"
+      [selectable]="!(formFilterComparisonControl(attr).value === item.value)"
+      [selected]="formFilterComparisonControl(attr).value === item.value"
+      (click)="toggleFilterFormComparison(attr, item.value)">
+      <span class="text-sm">
+        {{ item.label || item }}
+      </span>
+    </mat-chip-option>
+  </mat-chip-listbox>
+  }
+
+  <!-- Filter Value -->
+  <mat-form-field (click)="ignoreClick($event)"
+    subscriptSizing="dynamic"
+    class="w-full">
+    <input
+      [type]="type==='number' ? 'number':'text'"
+      matInput
+      [formControl]="formFilterValueControl(attr)"
+      [min]="type==='number' ? 0:null"
+      [max]="type==='number' ? formFilterValue2Control(attr).value:null"
+      placeholder="Filter value">
+  </mat-form-field>
+
+  @if(type==='number' && formFilterComparisonControl(attr).value ===
+  'between'){
+
+  <mat-form-field (click)="ignoreClick($event)"
+    subscriptSizing="dynamic"
+    class="w-full">
+    <input
+      [type]="type==='number' ? 'number':'text'"
+      matInput
+      [min]="type==='number' ? formFilterValueControl(attr).value:null"
+      [formControl]="formFilterValue2Control(attr)"
+      placeholder="Filter value">
+  </mat-form-field>
+  }
+
+  <button
+    [disabled]="filter_form.get(attr)?.pristine"
+    (click)="resetFilterControl(attr)"
+    mat-flat-button
+    color="warn">
+    Reset Filter
+  </button>
+</div>

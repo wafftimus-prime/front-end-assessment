@@ -1,21 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, signal } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSortModule } from '@angular/material/sort';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterModule } from '@angular/router';
-import { debounceTime, filter, map, Subject, takeUntil } from 'rxjs';
-import { checkForVowel, EmployeesService, ignoreClick } from '../../data';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-sort-menu',
@@ -24,21 +12,10 @@ import { checkForVowel, EmployeesService, ignoreClick } from '../../data';
   standalone: true,
   imports: [
     CommonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatTableModule,
-    MatIconModule,
-    MatSortModule,
-    MatPaginatorModule,
-    MatProgressSpinnerModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterModule,
-    MatMenuModule,
     MatButtonModule,
     MatChipsModule,
-    MatExpansionModule,
-    MatTooltipModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
