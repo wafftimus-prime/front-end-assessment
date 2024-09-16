@@ -43,6 +43,14 @@
   }
 
   <button
+    class="mb-2"
+    [disabled]="!(filter_form.get(attr)?.valid && !filter_form.get(attr)?.pristine)"
+    (click)="applyFilter(attr)"
+    mat-flat-button
+    color="primary">
+    Apply Filter
+  </button>
+  <button
     [disabled]="filter_form.get(attr)?.pristine"
     (click)="resetFilterControl(attr)"
     mat-flat-button

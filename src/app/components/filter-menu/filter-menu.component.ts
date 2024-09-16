@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -59,15 +59,15 @@ export class FilterMenuComponent implements OnInit, OnDestroy {
 
       // Create form for each attribute
       const form: FormGroup = this._fb.group({
-        value: null,
+        value: [null, [Validators.required]],
         type: a.type,
         label: a.label
       })
 
       // If attribute is a number add the comparison and value_2 controls to the form, also add subscriptions to make sure that values are never in valid (ie, min > max || max < min)
       if (a.type === 'number') {
-        form.addControl('comparison', this._fb.control(null))
-        form.addControl('value_2', this._fb.control(null));
+        form.addControl('comparison', this._fb.control(null, [Validators.required]))
+        form.addControl('value_2', this._fb.control(null, [Validators.required]));
 
         // Make sure that the first value is always less than the second value
         form.get('value')?.valueChanges.subscribe(value => {
@@ -96,13 +96,6 @@ export class FilterMenuComponent implements OnInit, OnDestroy {
 
       this.filter_form.addControl(a.attr, form);
     });
-
-    // Subscribe to value changes in order to handle filtering the list
-    this.filter_form.valueChanges
-      .pipe(takeUntil(this._unsubscribeAll))
-      .subscribe(value => {
-        this.catchSearch.emit(value)
-      })
   }
 
   /**
@@ -117,6 +110,12 @@ export class FilterMenuComponent implements OnInit, OnDestroy {
   // -------------------
   // PUBLIC METHODS
   // -------------------
+
+  applyFilter(attribute: string) {
+    const value = this.filter_form.value
+    this.filter_form.get([attribute])?.markAsPristine();
+    this.catchSearch.emit(value)
+  }
 
   formFilterValueControl(attribute: string): FormControl {
     return this.filter_form.get([attribute, 'value']) as FormControl
